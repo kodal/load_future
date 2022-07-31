@@ -17,6 +17,12 @@ class LoadContext extends StatefulWidget {
 }
 
 class _LoadContextState extends State<LoadContext> {
+
+  @override
+  void initState() {
+    super.initState();
+    loadNavigatorKey = widget.navigatorKey;
+  }
   @override
   Widget build(BuildContext context) {
     return widget.child;
