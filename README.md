@@ -2,7 +2,7 @@ Load Future with dialog progress bar
 
 ## Preview
 
-![The preview app running in macOS](https://github.com/kodal/load_future/raw/master/screenshot_records/record_1.gif?raw=true)
+![The preview app running in macOS](https://github.com/kodal/load_future/raw/master/screen_records/record_1.gif?raw=true)
 
 ## Features
 
