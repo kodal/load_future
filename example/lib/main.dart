@@ -4,88 +4,144 @@ import 'package:flutter/material.dart';
 import 'package:load_future/load_future.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({Key? key}) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
 
   static const title = 'Load Future Example';
 
-  final navigatorKey = GlobalKey<NavigatorState>();
-
   @override
-  Widget build(BuildContext context) {
-    return LoadWidget(
-      navigatorKey: navigatorKey,
-      child: MaterialApp(
-        title: title,
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
+  Widget build(BuildContext context) => LoadBuilder(
+        builder: (context, child, isLoading) => DialogBarrier(
+          isLoading: isLoading,
+          indicator: const CircularProgressIndicator(),
+          child: child,
         ),
-        navigatorKey: navigatorKey,
-        home: const MyHomePage(title: title),
-      ),
-    );
-  }
+        child: const MaterialApp(
+          title: title,
+          home: MyHomePage(title: title),
+        ),
+      );
 }
 
-class MyHomePage extends StatefulWidget {
+class MyHomePage extends StatelessWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
   final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(title: Text(title)),
+        // body: _MyHomeBody(),
+        body: LoadBuilder(
+          builder: (context, child, isLoading) => DialogBarrier(
+            isLoading: isLoading,
+            indicator: const CircularProgressIndicator(),
+            child: child,
+          ),
+          child: _MyHomeBody(),
+        ),
+      );
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomeBody extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
-      body: Center(
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              ElevatedButton(
-                child: const Text('Default 3s'),
-                onPressed: () =>
-                    load(Future.delayed(const Duration(seconds: 3))),
-              ),
-              ElevatedButton(
-                child: const Text('With result'),
-                onPressed: () => load<String>(Future.delayed(
-                  const Duration(seconds: 2),
-                  () => 'result',
-                )).then(
-                  (value) => showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Success'),
-                      content: Text(value),
-                    ),
-                  ),
-                ),
-              ),
-              ElevatedButton(
-                child: const Text('With error'),
-                onPressed: () => load(
-                  Future.delayed(const Duration(seconds: 10))
-                      .timeout(const Duration(seconds: 3)),
-                ).catchError(
-                  (e, _) => showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Error'),
-                      content: Text(e.toString()),
-                    ),
-                  ),
-                ),
-              ),
-            ].expand((e) => [e, const SizedBox(height: 16)]).toList(),
-            ),
-      ),
-    );
-  }
+  State<_MyHomeBody> createState() => _MyHomeBodyState();
 }
 
+class _MyHomeBodyState extends State<_MyHomeBody> {
+  final _loadButton = GlobalKey<LoadState>();
+  final _defaultDuration = const Duration(seconds: 3);
+
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      context.load(Future.delayed(_defaultDuration));
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            ElevatedButton(
+              child: const Text('Load'),
+              onPressed: () => context.load(
+                Future.delayed(_defaultDuration),
+              ),
+            ),
+            ElevatedButton(
+              child: const Text('Load root'),
+              onPressed: () => context.loadRoot(
+                Future.delayed(_defaultDuration
+                ),
+              ),
+            ),
+            ElevatedButton(
+              child: const Text('With result'),
+              onPressed: () => context
+                  .load(Future.delayed(
+                    _defaultDuration,
+                    () => 'result',
+                  ))
+                  .then(
+                    (value) => showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Success'),
+                        content: Text(value),
+                      ),
+                    ),
+                  ),
+            ),
+            ElevatedButton(
+              child: const Text('With error'),
+              onPressed: () => context
+                  .load(
+                    Future.delayed(const Duration(seconds: 10))
+                        .timeout(_defaultDuration),
+                  )
+                  .catchError(
+                    (e, _) => context.mounted
+                        ? showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Error'),
+                              content: Text(e.toString()),
+                            ),
+                          )
+                        : null,
+                  ),
+            ),
+            ElevatedButton(
+              onPressed: () => _loadButton.currentState?.load(
+                Future.delayed(_defaultDuration),
+              ),
+              child: LoadBuilder(
+                key: _loadButton,
+                builder: (context, child, isLoading) => isLoading
+                    ? const SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(),
+                      )
+                    : child,
+                child: const Text('Button load'),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const MyHomePage(title: 'Inner Page'),
+                ),
+              ),
+              child: const Text('Navigate to Inner'),
+            ),
+          ].expand((e) => [e, const SizedBox(height: 16)]).toList(),
+        ),
+      );
+}

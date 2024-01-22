@@ -1,5 +1,5 @@
 name: load_future
-description: Load future with proggress dialog.
+description: Load future with progress dialog.
 version: 0.0.3
 homepage: https://github.com/kodal/load_future
 
@@ -10,7 +10,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  async: ^2.8.2
 
 dev_dependencies:
   flutter_test:
