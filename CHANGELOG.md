@@ -11,3 +11,7 @@
 ## 0.0.3
 
 * [Fix] Screen record link at `README.md`
+
+## 0.1.0
+
+* [BREAKING] Now `load` function is usable only with context

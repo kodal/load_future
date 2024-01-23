@@ -1,6 +1,6 @@
 name: load_future
 description: Load future with progress dialog.
-version: 0.0.3
+version: 0.1.0
 homepage: https://github.com/kodal/load_future
 
 environment:
