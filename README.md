@@ -16,45 +16,44 @@ Load Future with dialog progress bar
 ### Add dependency
 
 ```yaml
-load_future: ^latest
+load_future: ^0.1.0
 ```
 
-### Wrap XApp with LoadWidget
+### Wrap App or any Widget with LoadBuilder
 
-Wrap `MaterialApp` or `CupertinoApp` with `LoadWidget` and use common `navigatorKey`.
+Wrap `MaterialApp` or any `Widget` with `LoadBuilder` where you want to show loading.
 
 ```dart
-final navigatorKey = GlobalKey<NavigatorState>();
-
-LoadWidget(
-  navigatorKey: navigatorKey,
-  ...
-  child: MaterialApp(
-    navigatorKey: navigatorKey,
-    ...
+LoadBuilder(
+    builder: (context, child, isLoading) => DialogBarrier(
+        isLoading: isLoading,
+        indicator: const CircularProgressIndicator(),
+        child: child,
+    ),
+    child: const MaterialApp(
+        title: title,
+        home: MyHomePage(title: title),
     ),
 );
 ```
 
 ## Usage
 
-### Wrap your `Future<T>` with `Future<T> load(Future<T> future)`
+### Wrap your `Future<T>` with `Future<T> context.load(Future<T> future)`
 
 ```dart
 Future<Response> longTask() async {
   ...;
 }
 
-onTap: () => load(longTask())
+onTap: () => context.load(longTask())
             .then((response) => ...) // work with success result
             .catchError((e, s) => ...) // work with error
 ```
 
 ## Warning
 
+`load` can be called only with BuildContext.
+
 Dialog is not dismissible.  You should cancel wrapped Future by own. Example: 
 `load(future.timeout(duration))`
-
-## Feature plans:
-
-- [ ] Load Stream Builder from Future

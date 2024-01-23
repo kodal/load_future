@@ -54,7 +54,6 @@ class _MyHomeBodyState extends State<_MyHomeBody> {
   final _loadButton = GlobalKey<LoadState>();
   final _defaultDuration = const Duration(seconds: 3);
 
-
   @override
   void initState() {
     super.initState();
@@ -77,8 +76,7 @@ class _MyHomeBodyState extends State<_MyHomeBody> {
             ElevatedButton(
               child: const Text('Load root'),
               onPressed: () => context.loadRoot(
-                Future.delayed(_defaultDuration
-                ),
+                Future.delayed(_defaultDuration),
               ),
             ),
             ElevatedButton(
