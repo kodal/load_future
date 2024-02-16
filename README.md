@@ -8,7 +8,6 @@ Load Future with dialog progress bar
 
 - Load Future
 - Customize loader
-- Without context
 - return Future
 
 ## Getting started
